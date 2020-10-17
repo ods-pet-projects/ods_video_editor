@@ -47,7 +47,7 @@ query = '''
         hb[3: 21].v * hb[3: 21].a * hb_i[0:18].i + hb_i.i[0:10]
 '''
 ```
-Create `MovDSL` pipeline, run `query` and save result file
+Create `MovDSL` pipeline from `movie_dsl.py`, run `query` and save result file
 ```
 dsl = MovDSL(params) \
     .query(query) \
