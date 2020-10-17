@@ -45,7 +45,7 @@ Example
 query = '''
         ww[43: 50].v * ww_a[75: 82].a +
         wh[158: 173].v * wch[15: 30].a +
-        hb[3: 21].v * hb[3: 21].a * hb_i[0:18].i + hb_i.i[0:10]
+        hb[3: 21].v * hb[3: 21].a * hb_i[0:18].i + hb_i[0:10].i
 '''
 ```
 Create `MovDSL` pipeline from `movie_dsl.py`, run `query` and save result file
