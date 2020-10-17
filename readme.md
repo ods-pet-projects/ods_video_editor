@@ -23,6 +23,7 @@ Structure
 
 
 Feature `Inner DSL` for video preparing pipeline
+
 Set file aliasing
 ```python
 params = {
