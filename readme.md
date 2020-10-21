@@ -37,9 +37,10 @@ params = {
 Describe pipeline, using syntax
 - `obj.a` - get audio
 - `obj.v` - get video
+- `obj.i` - get image
 - `*` merge into one clip different sources (video, audio, image)
 - `+` concat by timeline video clips
-- `obj[10: 13]` numpy like slice by time in seconds
+- `obj[10: 13]` numpy like slice by time in seconds (including right border)
 Example
 ```
 query = '''
