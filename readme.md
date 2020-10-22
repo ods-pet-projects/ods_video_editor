@@ -32,6 +32,7 @@ params = {
     'wh': 'data/init_hb/wh trailer.mp4',
     'wch': 'data/init_hb/wtch wild.mp4',
     'hb_i': 'data/init_hb/hb eu.png',
+    'hb': 'data/init_hb/hb.mp4',
 }
 ```
 Describe pipeline, using syntax
