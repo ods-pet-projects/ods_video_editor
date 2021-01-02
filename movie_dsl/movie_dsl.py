@@ -3,17 +3,38 @@ import moviepy.editor as mp
 
 
 class MovClass:
-    def __init__(self, clip_obj, path_params):
+    def __init__(self, clip_obj, path_params, common_fps=24, width=640, height=360, need_resize=True):
+        self.common_fps = common_fps
         self.path_params = path_params
         obj_params = self.get_expr_parts(clip_obj)
         self.name, self.slice, self.dtype, self.cmd = obj_params
         self.start_sec, self.end_sec = self.parse_slice(self.slice)
         self.clip = None
+        self.width = width
+        self.height = height
+        self.need_resize = need_resize
 
     @staticmethod
     def get_expr_parts(expr):
         pat = r'([a-zA-Z-_]+)(?:(\[[0-9:]+\]))?(?:\.([avi]?))?(?:\.(.*)$)?'
         return re.findall(pat, expr)[0]
+
+    @staticmethod
+    def parse_volume_cmd(expr):
+        pat = 'volume\((.*)\)'
+        groups = re.findall(pat, expr)
+        if groups:
+            print(groups[0])
+            return float(groups[0])
+
+
+    @staticmethod
+    def parse_resize_cmd(expr):
+        pat = 'resize\((\d+) *, *(\d+)\)'
+        groups = re.findall(pat, expr)[0]
+        if groups:
+            print('parse resize', groups)
+            return float(groups[0]), float(groups[1])
 
     def __str__(self):
         return ' '.join((self.name, self.slice, self.dtype, self.cmd))
@@ -29,16 +50,32 @@ class MovClass:
         ifile_path = self.path_params[self.name]
         if self.dtype == 'v':
             self.clip = mp.VideoFileClip(ifile_path, audio=False)
+            self.clip.set_fps(self.common_fps)
+            if self.need_resize:
+                if self.cmd and self.cmd.startswith('resize'):
+                    width, height = self.parse_resize_cmd(self.cmd)
+                    self.clip = self.clip.resize(newsize=(width, height))
+                else:
+                    self.clip = self.clip.resize(newsize=(self.width, self.height))
         elif self.dtype == 'a':
             self.clip = mp.AudioFileClip(ifile_path)
+            self.clip.set_fps(self.common_fps)
+            if self.cmd:
+                new_volume = self.parse_volume_cmd(self.cmd)
+                if new_volume:
+                    print('applied volume', new_volume)
+                    self.clip = self.clip.volumex(new_volume)
+                else:
+                    print('not supported cmd for audio', self.cmd)
         elif self.dtype == 'i':
-            self.clip = mp.ImageClip(ifile_path) \
-                .margin(right=8, top=8, opacity=0) \
-                .set_pos(("right", "top"))
+            self.clip = mp.ImageClip(ifile_path)
+                # .set_pos(("right", "top"))
+                # .margin(right=8, top=8, opacity=0) \
             if self.end_sec != self.start_sec:
                 self.clip = self.clip.set_duration(self.end_sec - self.start_sec)
         elif self.dtype == '':
             self.clip = mp.VideoFileClip(ifile_path, audio=True)
+            self.clip.set_fps(self.common_fps)
         else:
             print('unknown type', self.dtype)
 
@@ -55,14 +92,12 @@ class MovDSL:
         query = ''.join(query.split())
         self.clips = []
         for clip_expr in query.split('+'):
-            print(clip_expr)
             clip_parts = {}
             for clip_obj in self.get_objs(clip_expr):
                 clip_part = MovClass(clip_obj, self.params).load()
                 if clip_part.dtype in clip_parts:
                     raise Exception(f'Key exists {clip_part.dtype}')
                 clip_parts[clip_part.dtype] = clip_part.clip
-                print('\t', clip_part)
             self.clips.append(self.merge_parts(clip_parts))
         return self
 
@@ -93,6 +128,7 @@ class MovDSL:
         if 'a' in clip_parts:
             clip = clip.set_audio(clip_parts['a'])
         return clip
+
 
 def main():
     params = {
