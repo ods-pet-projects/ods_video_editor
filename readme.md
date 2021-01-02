@@ -22,7 +22,8 @@ Structure
 - - `output` *.mp4 result files with video and audio
 
 
-Feature Inner DSL for video preparing pipeline
+Feature `Inner DSL` for video preparing pipeline
+
 Set file aliasing
 ```python
 params = {
