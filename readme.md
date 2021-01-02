@@ -32,20 +32,22 @@ params = {
     'wh': 'data/init_hb/wh trailer.mp4',
     'wch': 'data/init_hb/wtch wild.mp4',
     'hb_i': 'data/init_hb/hb eu.png',
+    'hb': 'data/init_hb/hb.mp4',
 }
 ```
 Describe pipeline, using syntax
 - `obj.a` - get audio
 - `obj.v` - get video
+- `obj.i` - get image
 - `*` merge into one clip different sources (video, audio, image)
 - `+` concat by timeline video clips
-- `obj[10: 13]` numpy like slice by time in seconds
+- `obj[10: 13]` numpy like slice by time in seconds (including right border)
 Example
 ```
 query = '''
         ww[43: 50].v * ww_a[75: 82].a +
         wh[158: 173].v * wch[15: 30].a +
-        hb[3: 21].v * hb[3: 21].a * hb_i[0:18].i + hb_i.i[0:10]
+        hb[3: 21].v * hb[3: 21].a * hb_i[0:18].i + hb_i[0:10].i
 '''
 ```
 Create `MovDSL` pipeline from `movie_dsl.py`, run `query` and save result file
